@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnoTrend - Premium Textile Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1d1d1f;
+            overflow-x: hidden;
+            background: #faf8f5;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Fabric Texture Background */
+        .fabric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(230, 225, 215, 0.3),
+                    rgba(230, 225, 215, 0.3) 1px,
+                    transparent 1px,
+                    transparent 3px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(230, 225, 215, 0.3),
+                    rgba(230, 225, 215, 0.3) 1px,
+                    transparent 1px,
+                    transparent 3px
+                ),
+                radial-gradient(ellipse at 20% 30%, rgba(245, 240, 230, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(240, 235, 225, 0.6) 0%, transparent 50%),
+                linear-gradient(135deg, #f5f0e6 0%, #ebe6dc 50%, #e6e1d7 100%);
+            animation: fabricShift 20s ease-in-out infinite;
+        }
+
+        @keyframes fabricShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.02) rotate(0.5deg); }
+        }
+
+        /* Floating Fabric Threads */
+        .threads {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .thread {
+            position: absolute;
+            width: 2px;
+            height: 120px;
+            background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            animation: threadFloat 15s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes threadFloat {
+            0% { 
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { 
+                transform: translateY(-120px) translateX(200px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        /* Header - Apple Style */
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            color: #1d1d1f;
+            padding: 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 44px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #D4AF37 0%, #8B7355 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 400;
+            position: relative;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #D4AF37;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-top: 44px;
+            padding: 4rem 2rem;
+        }
+
+        .hero-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .fabric-wave-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 40%, rgba(245, 240, 230, 0.9) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(240, 235, 225, 0.7) 0%, transparent 50%);
+            animation: waveFlow 15s ease-in-out infinite;
+        }
+
+        @keyframes waveFlow {
+            0%, 100% { 
+                transform: translateY(0) scale(1);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translateY(-20px) scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 1000px;
+            animation: heroFadeIn 1.5s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            color: #1d1d1f;
+            line-height: 1.1;
+        }
+
+        .hero-content .gradient-text {
+            background: linear-gradient(135deg, #D4AF37 0%, #8B7355 50%, #D4AF37 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 4s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-content p {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            margin-bottom: 2.5rem;
+            color: #6e6e73;
+            font-weight: 400;
+            animation: heroFadeIn 1.5s ease-out 0.3s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: heroFadeIn 1.5s ease-out 0.6s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #D4AF37;
+            color: white;
+            text-decoration: none;
+            border-radius: 980px;
+            font-size: 1rem;
+            font-weight: 400;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: #D4AF37;
+            border: 2px solid #D4AF37;
+        }
+
+        .cta-button.secondary:hover {
+            background: #D4AF37;
+            color: white;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .scroll-indicator::before {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 50px;
+            border: 2px solid #D4AF37;
+            border-radius: 25px;
+            position: relative;
+        }
+
+        .scroll-indicator::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #D4AF37;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            animation: scrollDot 2s infinite;
+        }
+
+        @keyframes scrollDot {
+            0%, 100% { transform: translate(-50%, 0); opacity: 0; }
+            50% { transform: translate(-50%, 20px); opacity: 1; }
+        }
+
+        /* Section Styles */
+        section {
+            position: relative;
+            padding: 8rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+            color: #1d1d1f;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            text-align: center;
+            color: #6e6e73;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease 0.2s;
+        }
+
+        .section-subtitle.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: transform 0.5s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            font-size: 1rem;
+            color: #6e6e73;
+            line-height: 1.6;
+        }
+
+        /* Product Showcase */
+        .product-showcase {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f0e6 0%, #ebe6dc 100%);
+        }
+
+        .showcase-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            max-width: 1400px;
+            padding: 0 2rem;
+        }
+
+        .showcase-text {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 1s ease;
+        }
+
+        .showcase-text.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .showcase-text h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .showcase-text p {
+            font-size: 1.2rem;
+            color: #6e6e73;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .showcase-image {
+            position: relative;
+            opacity: 0;
+            transform: translateX(50px) scale(0.9);
+            transition: all 1s ease 0.3s;
+        }
+
+        .showcase-image.visible {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+
+        .fabric-sample {
+            width: 100%;
+            height: 500px;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(230, 225, 215, 0.5),
+                    rgba(230, 225, 215, 0.5) 10px,
+                    transparent 10px,
+                    transparent 20px
+                ),
+                linear-gradient(135deg, #f5f0e6 0%, #e6e1d7 100%);
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            animation: fabricFloat 6s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fabricFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            }
+            50% { 
+                transform: translateY(-20px) rotate(2deg);
+                box-shadow: 0 40px 100px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        .fabric-sample::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: fabricShine 3s linear infinite;
+        }
+
+        @keyframes fabricShine {
+            0% { transform: rotate(0deg) translateY(-50%); }
+            100% { transform: rotate(360deg) translateY(50%); }
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, #1d1d1f 0%, #2d2d2f 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s ease;
+        }
+
+        .stat-item.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stat-number {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #D4AF37 0%, #F4E4B7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            color: #a1a1a6;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .team-member {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+        }
+
+        .team-member.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .member-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4AF37 0%, #8B7355 100%);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .team-member:hover .member-avatar::before {
+            animation: avatarShine 1s ease;
+        }
+
+        @keyframes avatarShine {
+            0% { transform: rotate(45deg) translateY(-100%); }
+            100% { transform: rotate(45deg) translateY(100%); }
+        }
+
+        .team-member:hover .member-avatar {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .team-member h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+        }
+
+        .team-member .role {
+            font-size: 1rem;
+            color: #D4AF37;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .team-member p {
+            font-size: 0.95rem;
+            color: #6e6e73;
+            line-height: 1.6;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, #f5f0e6 0%, #ebe6dc 100%);
+            padding: 8rem 2rem;
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-form {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 4rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .contact-form.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #D4AF37;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: #D4AF37;
+            color: white;
+            border: none;
+            border-radius: 980px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: #1d1d1f;
+            color: #a1a1a6;
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        footer p {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .showcase-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-button {
+                width: 100%;
+            }
+
+            .fabric-sample {
+                height: 300px;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="fabric-bg"></div>
+    <div class="threads" id="threads"></div>
+
+    <header id="header">
+        <nav>
+            <div class="logo">InnoTrend</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#showcase">Showcase</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-video-bg">
+            <div class="fabric-wave-animation"></div>
+        </div>
+        <div class="hero-content">
+            <h1>The future of <span class="gradient-text">textiles</span> is here.</h1>
+            <p>Precision-engineered fabrics that blend innovation with sustainability</p>
+            <div class="cta-buttons">
+                <a href="#showcase" class="cta-button">Explore Products</a>
+                <a href="#contact" class="cta-button secondary">Get in Touch</a>
+            </div>
+        </div>
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <section id="features">
+        <h2 class="section-title fade-in">Engineered for Excellence</h2>
+        <p class="section-subtitle fade-in">Every thread tells a story of innovation</p>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🧵</div>
+                <h3>Custom Manufacturing</h3>
+                <p>Precision-engineered fabrics tailored to your exact specifications using premium materials and advanced techniques.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🎨</div>
+                <h3>Design Innovation</h3>
+                <p>Expert design services transforming your vision into reality with innovative patterns and textures.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">♻️</div>
+                <h3>Sustainable Future</h3>
+                <p>Eco-friendly production methods utilizing renewable materials and zero-waste processes.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="showcase" class="product-showcase">
+        <div class="showcase-content">
+            <div class="showcase-text fade-in">
+                <h2>Crafted with precision. Designed for life.</h2>
+                <p>Our premium textiles combine traditional craftsmanship with cutting-edge technology. Each fabric is meticulously engineered to deliver unparalleled quality and durability.</p>
+                <a href="#contact" class="cta-button">Request Samples</a>
+            </div>
+            <div class="showcase-image fade-in">
+                <div class="fabric-sample"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item fade-in">
+                <span class="stat-number" data-target="20">0</span>
+                <span class="stat-label">Years of Excellence</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number" data-target="500">0</span>
+                <span class="stat-label">Global Partners</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number" data-target="1000">0</span>
+                <span class="stat-label">Products Delivered</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number" data-target="98">0</span>
+                <span class="stat-label">Satisfaction Rate</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="team">
+        <h2 class="section-title fade-in">Meet the Innovators</h2>
+        <p class="section-subtitle fade-in">The minds behind the fabric</p>
+        <div class="team-grid">
+            <div class="team-member fade-in">
+                <div class="member-avatar">JD</div>
+                <h3>John Davidson</h3>
+                <p class="role">CEO & Founder</p>
+                <p>Visionary leader with 25+ years transforming the textile industry through innovation.</p>
+            </div>
+            <div class="team-member fade-in">
+                <div class="member-avatar">SC</div>
+                <h3>Sarah Chen</h3>
+                <p class="role">Head of Design</p>
+                <p>Award-winning designer pioneering revolutionary textile patterns and aesthetics.</p>
+            </div>
+            <div class="team-member fade-in">
+                <div class="member-avatar">MP</div>
+                <h3>Michael Peterson</h3>
+                <p class="role">Production Manager</p>
+                <p>Operations expert optimizing efficiency and quality across all manufacturing processes.</p>
+            </div>
+            <div class="team-member fade-in">
+                <div class="member-avatar">ER</div>
+                <h3>Emily Rodriguez</h3>
+                <p class="role">Sustainability Director</p>
+                <p>Environmental champion driving eco-innovation and sustainable textile solutions.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <div class="contact-container">
+            <h2 class="section-title fade-in">Let's Create Together</h2>
+            <p class="section-subtitle fade-in">Get in touch to start your project</p>
+            <div class="contact-form fade-in">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Your Message</label>
+                        <textarea id="message" name="message" rows="6" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 InnoTrend Textiles. All Rights Reserved.</p>
+        <p>Pioneering Excellence Since 2005</p>
+    </footer>
+
+    <script>
+        // Create Floating Threads
+        const threadsContainer = document.getElementById('threads');
+        for (let i = 0; i < 30; i++) {
+            const thread = document.createElement('div');
+            thread.className = 'thread';
+            thread.style.left = Math.random() * 100 + '%';
+            thread.style.animationDelay = Math.random() * 15 + 's';
+            thread.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            threadsContainer.appendChild(thread);
+        }
+
+        // Header Scroll Effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in, .feature-card, .team-member, .stat-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Counter Animation for Stats
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute('data-target'));
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    element.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            };
+
+            updateCounter();
+        }
+
+        // Observe stat numbers
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumber = entry.target.querySelector('.stat-number');
+                    if (statNumber && !statNumber.classList.contains('counted')) {
+                        statNumber.classList.add('counted');
+                        animateCounter(statNumber);
+                    }
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-item').forEach(el => {
+            statsObserver.observe(el);
+        });
+
+        // Parallax Effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            
+            // Hero parallax
+            const heroContent = document.querySelector('.hero-content');
+            if (heroContent) {
+                heroContent.style.transform = `translateY(${scrolled * 0.5}px)`;
+                heroContent.style.opacity = 1 - (scrolled / 700);
+            }
+
+            // Fabric wave animation parallax
+            const fabricWave = document.querySelector('.fabric-wave-animation');
+            if (fabricWave) {
+                fabricWave.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+
+        // Form Submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value
+            };
+
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                submitBtn.textContent = '✓ Message Sent!';
+                submitBtn.style.background = 'linear-gradient(135deg, #7FB069, #659B5E)';
+                
+                alert(`Thank you, ${formData.name}! Your message has been received. We'll respond to ${formData.email} within 24 hours.`);
+                
+                setTimeout(() => {
+                    this.reset();
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.background = '#D4AF37';
+                    submitBtn.style.pointerEvents = 'auto';
+                }, 2000);
+            }, 1500);
+        });
+
+        // Mouse Movement Effect for Cards
+        document.querySelectorAll('.feature-card, .team-member').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        // Fabric Sample Interaction
+        const fabricSample = document.querySelector('.fabric-sample');
+        if (fabricSample) {
+            fabricSample.addEventListener('mousemove', (e) => {
+                const rect = fabricSample.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                fabricSample.style.background = `
+                    repeating-linear-gradient(
+                        45deg,
+                        rgba(230, 225, 215, 0.5),
+                        rgba(230, 225, 215, 0.5) 10px,
+                        transparent 10px,
+                        transparent 20px
+                    ),
+                    radial-gradient(circle at ${x}% ${y}%, rgba(212, 175, 55, 0.3) 0%, transparent 50%),
+                    linear-gradient(135deg, #f5f0e6 0%, #e6e1d7 100%)
+                `;
+            });
+
+            fabricSample.addEventListener('mouseleave', () => {
+                fabricSample.style.background = `
+                    repeating-linear-gradient(
+                        45deg,
+                        rgba(230, 225, 215, 0.5),
+                        rgba(230, 225, 215, 0.5) 10px,
+                        transparent 10px,
+                        transparent 20px
+                    ),
+                    linear-gradient(135deg, #f5f0e6 0%, #e6e1d7 100%)
+                `;
+            });
+        }
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.cta-button, .submit-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.pointerEvents = 'none';
+                
+                ripple.animate([
+                    { transform: 'scale(0)', opacity: 1 },
+                    { transform: 'scale(4)', opacity: 0 }
+                ], {
+                    duration: 600,
+                    easing: 'ease-out'
+                });
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Magnetic effect for navigation links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('mousemove', (e) => {
+                const rect = link.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                link.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        // Loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // Scroll-triggered animations for showcase
+        const showcaseObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.showcase-text, .showcase-image').forEach(el => {
+            showcaseObserver.observe(el);
+        });
+
+        // Add stagger animation to feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            card.style.transitionDelay = `${index * 0.2}s`;
+        });
+
+        // Add stagger animation to team members
+        const teamMembers = document.querySelectorAll('.team-member');
+        teamMembers.forEach((member, index) => {
+            member.style.transitionDelay = `${index * 0.15}s`;
+        });
+    </script>
+</body>
+</html>
