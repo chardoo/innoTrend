@@ -14,8 +14,16 @@ class Settings(BaseSettings):
     APP_NAME: str = "FastAPI Starter"
     ENV: str = "dev"
     DEBUG: bool = True
-    ALLOW_ORIGINS: List[str] = Field(default_factory=lambda: ["*"])
-
+    ALLOW_ORIGINS: list = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8000",
+        "http://localhost",
+        "https://*",
+    ]
     # Map your existing env names too (works with or without the APP_ prefix)
     FIREBASE_CREDENTIALS_B64: Optional[str] = Field(
         default=None,
