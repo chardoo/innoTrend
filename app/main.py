@@ -10,17 +10,20 @@ from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 
 
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=settings.ALLOW_ORIGINS if settings.ALLOW_ORIGINS != ["*"] else ["*"],
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*']
+    )
+]
 
 
-app = FastAPI(title=settings.APP_NAME)
+app = FastAPI(title=settings.APP_NAME,middleware=middleware)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOW_ORIGINS,
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
