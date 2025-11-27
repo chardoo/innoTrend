@@ -1,111 +1,126 @@
-from datetime import datetime
 from typing import Optional, List
 from fastapi import HTTPException, status
-from app.config.firebase import db
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+from app.models.postgress_model import Customer, Order
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
 
 class CustomerService:
-    def __init__(self):
-        self.collection = db.collection('customers')
-    
-    async def create_customer(self, customer: CustomerCreate) -> CustomerResponse:
+    @staticmethod
+    async def create_customer(db: AsyncSession, customer: CustomerCreate) -> CustomerResponse:
         """Create a new customer"""
         # Check if customer exists
-        existing = self.collection.where('email', '==', customer.email).limit(1).get()
-        if list(existing):
+        result = await db.execute(
+            select(Customer).where(Customer.email == customer.email)
+        )
+        if result.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Customer with this email already exists"
             )
         
-        customer_data = {
-            **customer.model_dump(),
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
-        }
+        db_customer = Customer(**customer.model_dump())
+        db.add(db_customer)
+        await db.commit()
+        await db.refresh(db_customer)
         
-        doc_ref = self.collection.document()
-        doc_ref.set(customer_data)
-        
-        return CustomerResponse(
-            id=doc_ref.id,
-            **customer.model_dump(),
-            created_at=customer_data["created_at"],
-            updated_at=customer_data["updated_at"]
-        )
+        return CustomerResponse.model_validate(db_customer)
     
-    async def get_customer(self, customer_id: str) -> CustomerResponse:
+    @staticmethod
+    async def get_customer(db: AsyncSession, customer_id: str) -> CustomerResponse:
         """Get customer by ID"""
-        doc = self.collection.document(customer_id).get()
-        if not doc.exists:
+        result = await db.execute(
+            select(Customer).where(Customer.id == customer_id)
+        )
+        print("Get customer result:", result)
+        customer = result.scalar_one_or_none()
+        print("Get customer customer:", customer)
+        print("Get customer customer:", customer)
+        if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Customer not found"
             )
         
-        data = doc.to_dict()
-        return CustomerResponse(id=doc.id, **data)
+        return CustomerResponse.model_validate(customer)
     
-    async def list_customers(self, skip: int = 0, limit: int = 100, search: Optional[str] = None) -> List[CustomerResponse]:
+    @staticmethod
+    async def list_customers(
+        db: AsyncSession, 
+        skip: int = 0, 
+        limit: int = 100, 
+        search: Optional[str] = None
+    ) -> List[CustomerResponse]:
         """List all customers with optional search"""
-        query = self.collection
+        query = select(Customer)
         
         if search:
-            all_customers = query.stream()
-            customers = []
-            count = 0
-            for doc in all_customers:
-                data = doc.to_dict()
-                if (search.lower() in data["name"].lower() or 
-                    search.lower() in data["email"].lower() or
-                    (data.get("phone") and search in data["phone"])):
-                    if count >= skip and len(customers) < limit:
-                        customers.append(CustomerResponse(id=doc.id, **data))
-                    count += 1
-        else:
-            docs = query.offset(skip).limit(limit).stream()
-            customers = [CustomerResponse(id=doc.id, **doc.to_dict()) for doc in docs]
+            search_pattern = f"%{search.lower()}%"
+            query = query.where(
+                (Customer.name.ilike(search_pattern)) | 
+                (Customer.email.ilike(search_pattern)) |
+                (Customer.phone.ilike(search_pattern))
+            )
         
-        return customers
+        query = query.offset(skip).limit(limit)
+        result = await db.execute(query)
+        customers = result.scalars().all()
+        
+        return [CustomerResponse.model_validate(c) for c in customers]
     
-    async def update_customer(self, customer_id: str, customer: CustomerUpdate) -> CustomerResponse:
+    @staticmethod
+    async def update_customer(
+        db: AsyncSession, 
+        customer_id: str, 
+        customer_update: CustomerUpdate
+    ) -> CustomerResponse:
         """Update customer details"""
-        doc_ref = self.collection.document(customer_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Customer).where(Customer.id == customer_id)
+        )
+        customer = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Customer not found"
             )
         
-        update_data = customer.model_dump(exclude_unset=True)
-        update_data["updated_at"] = datetime.utcnow()
+        update_data = customer_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(customer, field, value)
         
-        doc_ref.update(update_data)
+        await db.commit()
+        await db.refresh(customer)
         
-        updated_doc = doc_ref.get()
-        data = updated_doc.to_dict()
-        return CustomerResponse(id=updated_doc.id, **data)
+        return CustomerResponse.model_validate(customer)
     
-    async def delete_customer(self, customer_id: str) -> bool:
+    @staticmethod
+    async def delete_customer(db: AsyncSession, customer_id: str) -> bool:
         """Delete customer"""
-        doc_ref = self.collection.document(customer_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Customer).where(Customer.id == customer_id)
+        )
+        customer = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Customer not found"
             )
         
         # Check if customer has orders
-        orders = db.collection('orders').where('customer_id', '==', customer_id).limit(1).get()
-        if list(orders):
+        order_result = await db.execute(
+            select(Order).where(Order.customer_id == customer_id).limit(1)
+        )
+        if order_result.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot delete customer with existing orders"
             )
         
-        doc_ref.delete()
+        await db.delete(customer)
+        await db.commit()
         return True

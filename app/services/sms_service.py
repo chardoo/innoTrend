@@ -24,14 +24,12 @@ class SMSService:
           
             base_url = f"https://sms.arkesel.com/sms/api?action=send-sms&api_key={settings.Arkesel}&from={settings.Sender_id}"
             sms_url = base_url + f"&to={to_number}&sms={message}"
-            print(sms_url)
+           
             ## When terminating sms traffic to Nigerian contacts, you are required to specify the use_case to the fields submitted
             ## ie.|   sms_url = base_url + f"&to={phone_number}&sms={message}&use_case=transactional"
 
             response = requests.get(sms_url)
             response_json = response.json()
-            print(response_json)
-            
             return True
         except Exception as e:
             logger.error(f"Failed to send SMS to {to_number}: {str(e)}")
@@ -46,7 +44,7 @@ class SMSService:
         # print('bulk sms function called')
         for number in phone_numbers:
             success = await self.send_sms(number, message)
-            if success:
+            if success is True:
                 results["success"].append(number)
             else:
                 results["failed"].append(number)

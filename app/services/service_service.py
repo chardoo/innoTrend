@@ -1,93 +1,106 @@
-from datetime import datetime
 from typing import Optional, List
 from fastapi import HTTPException, status
-from app.config.firebase import db
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.postgress_model import Service
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceResponse
 
 class ServiceService:
-    def __init__(self):
-        self.collection = db.collection('services')
-    
-    async def create_service(self, service: ServiceCreate) -> ServiceResponse:
+    @staticmethod
+    async def create_service(db: AsyncSession, service: ServiceCreate) -> ServiceResponse:
         """Create a new service"""
-        service_data = {
-            **service.model_dump(),
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
-        }
+        db_service = Service(**service.model_dump())
+        db.add(db_service)
+        await db.commit()
+        await db.refresh(db_service)
         
-        doc_ref = self.collection.document()
-        doc_ref.set(service_data)
-        
-        return ServiceResponse(id=doc_ref.id, **service_data)
+        return ServiceResponse.model_validate(db_service)
     
-    async def get_service(self, service_id: str) -> ServiceResponse:
+    @staticmethod
+    async def get_service(db: AsyncSession, service_id: str) -> ServiceResponse:
         """Get service by ID"""
-        doc = self.collection.document(service_id).get()
-        if not doc.exists:
+        result = await db.execute(
+            select(Service).where(Service.id == service_id)
+        )
+        service = result.scalar_one_or_none()
+        
+        if not service:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Service not found"
             )
         
-        data = doc.to_dict()
-        return ServiceResponse(id=doc.id, **data)
+        return ServiceResponse.model_validate(service)
     
-    async def list_services(self, skip: int = 0, limit: int = 100, active_only: bool = False, search: Optional[str] = None) -> List[ServiceResponse]:
-        """List all services"""
-        query = self.collection
+    @staticmethod
+    async def list_services(
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 100,
+        active_only: bool = False,
+        search: Optional[str] = None
+    ) -> List[ServiceResponse]:
+        """List all services with optional filters"""
+        query = select(Service)
         
         if active_only:
-            query = query.where('is_active', '==', True)
+            query = query.where(Service.is_active == True)
         
         if search:
-            all_services = query.stream()
-            services = []
-            count = 0
-            for doc in all_services:
-                data = doc.to_dict()
-                if (search.lower() in data["title"].lower() or 
-                    search.lower() in data["description"].lower()):
-                    if count >= skip and len(services) < limit:
-                        services.append(ServiceResponse(id=doc.id, **data))
-                    count += 1
-        else:
-            docs = query.offset(skip).limit(limit).stream()
-            services = [ServiceResponse(id=doc.id, **doc.to_dict()) for doc in docs]
+            search_pattern = f"%{search.lower()}%"
+            query = query.where(
+                (Service.title.ilike(search_pattern)) |
+                (Service.description.ilike(search_pattern))
+            )
         
-        return services
+        query = query.offset(skip).limit(limit)
+        result = await db.execute(query)
+        services = result.scalars().all()
+        
+        return [ServiceResponse.model_validate(s) for s in services]
     
-    async def update_service(self, service_id: str, service: ServiceUpdate) -> ServiceResponse:
+    @staticmethod
+    async def update_service(
+        db: AsyncSession,
+        service_id: str,
+        service_update: ServiceUpdate
+    ) -> ServiceResponse:
         """Update service"""
-        doc_ref = self.collection.document(service_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Service).where(Service.id == service_id)
+        )
+        service = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not service:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Service not found"
             )
         
-        update_data = service.model_dump(exclude_unset=True)
-        update_data["updated_at"] = datetime.utcnow()
+        update_data = service_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(service, field, value)
         
-        doc_ref.update(update_data)
+        await db.commit()
+        await db.refresh(service)
         
-        updated_doc = doc_ref.get()
-        data = updated_doc.to_dict()
-        return ServiceResponse(id=updated_doc.id, **data)
+        return ServiceResponse.model_validate(service)
     
-    async def delete_service(self, service_id: str) -> bool:
+    @staticmethod
+    async def delete_service(db: AsyncSession, service_id: str) -> bool:
         """Delete service"""
-        doc_ref = self.collection.document(service_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Service).where(Service.id == service_id)
+        )
+        service = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not service:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Service not found"
             )
         
-        doc_ref.delete()
+        await db.delete(service)
+        await db.commit()
         return True
-

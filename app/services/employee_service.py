@@ -1,90 +1,101 @@
-from datetime import datetime
 from typing import Optional, List
 from fastapi import HTTPException, status
-from app.config.firebase import db
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.postgress_model import Employee
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
 
 class EmployeeService:
-    def __init__(self):
-        self.collection = db.collection('employees')
-    
-    async def create_employee(self, employee: EmployeeCreate) -> EmployeeResponse:
+    @staticmethod
+    async def create_employee(db: AsyncSession, employee: EmployeeCreate) -> EmployeeResponse:
         """Create a new employee"""
-        employee_data = {
-            **employee.model_dump(),
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
-        }
+        db_employee = Employee(**employee.model_dump())
+        db.add(db_employee)
+        await db.commit()
+        await db.refresh(db_employee)
         
-        doc_ref = self.collection.document()
-        doc_ref.set(employee_data)
-        
-        return EmployeeResponse(id=doc_ref.id, **employee_data)
+        return EmployeeResponse.model_validate(db_employee)
     
-    async def get_employee(self, employee_id: str) -> EmployeeResponse:
+    @staticmethod
+    async def get_employee(db: AsyncSession, employee_id: str) -> EmployeeResponse:
         """Get employee by ID"""
-        doc = self.collection.document(employee_id).get()
-        if not doc.exists:
+        result = await db.execute(
+            select(Employee).where(Employee.id == employee_id)
+        )
+        employee = result.scalar_one_or_none()
+        
+        if not employee:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employee not found"
             )
         
-        data = doc.to_dict()
-        return EmployeeResponse(id=doc.id, **data)
+        return EmployeeResponse.model_validate(employee)
     
-    async def list_employees(self, skip: int = 0, limit: int = 100, search: Optional[str] = None) -> List[EmployeeResponse]:
-        """List all employees"""
-        query = self.collection
+    @staticmethod
+    async def list_employees(
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 100,
+        search: Optional[str] = None
+    ) -> List[EmployeeResponse]:
+        """List all employees with optional search"""
+        query = select(Employee)
         
         if search:
-            all_employees = query.stream()
-            employees = []
-            count = 0
-            for doc in all_employees:
-                data = doc.to_dict()
-                if (search.lower() in data["name"].lower() or 
-                    search.lower() in data["job_title"].lower()):
-                    if count >= skip and len(employees) < limit:
-                        employees.append(EmployeeResponse(id=doc.id, **data))
-                    count += 1
-        else:
-            docs = query.offset(skip).limit(limit).stream()
-            employees = [EmployeeResponse(id=doc.id, **doc.to_dict()) for doc in docs]
+            search_pattern = f"%{search.lower()}%"
+            query = query.where(
+                (Employee.name.ilike(search_pattern)) |
+                (Employee.job_title.ilike(search_pattern))
+            )
         
-        return employees
+        query = query.offset(skip).limit(limit)
+        result = await db.execute(query)
+        employees = result.scalars().all()
+        
+        return [EmployeeResponse.model_validate(e) for e in employees]
     
-    async def update_employee(self, employee_id: str, employee: EmployeeUpdate) -> EmployeeResponse:
+    @staticmethod
+    async def update_employee(
+        db: AsyncSession,
+        employee_id: str,
+        employee_update: EmployeeUpdate
+    ) -> EmployeeResponse:
         """Update employee"""
-        doc_ref = self.collection.document(employee_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Employee).where(Employee.id == employee_id)
+        )
+        employee = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not employee:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employee not found"
             )
         
-        update_data = employee.model_dump(exclude_unset=True)
-        update_data["updated_at"] = datetime.utcnow()
+        update_data = employee_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(employee, field, value)
         
-        doc_ref.update(update_data)
+        await db.commit()
+        await db.refresh(employee)
         
-        updated_doc = doc_ref.get()
-        data = updated_doc.to_dict()
-        return EmployeeResponse(id=updated_doc.id, **data)
+        return EmployeeResponse.model_validate(employee)
     
-    async def delete_employee(self, employee_id: str) -> bool:
+    @staticmethod
+    async def delete_employee(db: AsyncSession, employee_id: str) -> bool:
         """Delete employee"""
-        doc_ref = self.collection.document(employee_id)
-        doc = doc_ref.get()
+        result = await db.execute(
+            select(Employee).where(Employee.id == employee_id)
+        )
+        employee = result.scalar_one_or_none()
         
-        if not doc.exists:
+        if not employee:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employee not found"
             )
         
-        doc_ref.delete()
+        await db.delete(employee)
+        await db.commit()
         return True
-

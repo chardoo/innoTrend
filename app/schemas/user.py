@@ -1,13 +1,20 @@
-from pydantic import BaseModel, EmailStr
+# app/schemas/user.py
+from pydantic import UUID4, BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
-from app.models.user import UserRole
+import enum
+
+# Mirror the enum from your model
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    EMPLOYEE = "employee"
+    MANAGER = "manager"
 
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str
     phone: Optional[str] = None
-    role: UserRole = UserRole.USER
+    role: UserRole
 
 class UserCreate(UserBase):
     password: str
@@ -17,15 +24,18 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
     role: Optional[UserRole] = None
-    is_active: Optional[bool] = None
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id: str
+    email: str
+    full_name: str
+    phone: Optional[str] = None
+    role: UserRole
     is_active: bool
     created_at: datetime
+    updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -33,4 +43,4 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str

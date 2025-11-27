@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import UUID4, BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -14,13 +14,21 @@ class ContactCreate(ContactBase):
 class ContactResponse(ContactBase):
     id: str
     is_read: bool
+    email: str
+    name: str
+    phone: Optional[str] = None
+    message: str
     created_at: datetime
+ 
+    
     
     class Config:
         from_attributes = True
 
 class MessageSend(BaseModel):
-    recipient_ids: list[str]
+    contact_ids: list[str]
+    recipient_contacts: list[str]
+    customers_ids: list[str]
     subject: str
     message: str
     send_via_email: bool = True

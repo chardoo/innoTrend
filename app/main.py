@@ -8,19 +8,19 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
-
+from starlette.middleware import Middleware
 
 
 
 app = FastAPI(title=settings.APP_NAME)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOW_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=settings.ALLOW_ORIGINS,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
@@ -30,12 +30,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 templates = Jinja2Templates(directory="dist")
 app.mount("/dist", StaticFiles(directory="dist"), name="dist")
+
 # Mount the static directory for serving CSS, JS, images, etc.
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
-
 @app.get("/", response_class=HTMLResponse)
 async def get_home():
-    with open("dist/index.html", "r") as f:
+    with open("templates/home/home.html", "r") as f:
         return HTMLResponse(content=f.read())
     
 @app.get("/health")
@@ -59,6 +59,8 @@ async def global_exception_handler(request, exc):
 @app.on_event("startup")
 async def startup_event():
     """Startup event"""
+    await init_db()
+    print("✅ Database tables created/verified")
 
 
 # Shutdown event
@@ -67,6 +69,7 @@ async def shutdown_event():
     """Shutdown event"""
     print("Shutting down InnoTrend API...")
 
+from app.config.firebase import init_db
 from app.controller import auth_controller, contact_controller, order_controller,  employee_controller, customer_controller,service_controller
 
 app.include_router(auth_controller.router)

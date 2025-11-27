@@ -5,9 +5,10 @@ from app.services.order_service import OrderService
 from app.services.customer_service import CustomerService
 from app.services.sms_service import SMSService
 from app.services.email_service import EmailService
-from app.middleware.auth_middleware import require_admin
+from app.middleware.auth_middleware import require_admin, require_super_admin
 from app.models.order import OrderStatus
-
+from app.config.firebase import get_db
+from sqlalchemy.ext.asyncio import  AsyncSession
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
 async def send_order_notifications(
@@ -65,6 +66,7 @@ async def send_order_notifications(
 async def create_order(
     order: OrderCreate,
     background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Create a new order (Admin only)"""
@@ -72,8 +74,8 @@ async def create_order(
     order_service = OrderService()
     customer_service = CustomerService()
     
-    new_order = await order_service.create_order(order)
-    customer = await customer_service.get_customer(order.customer_id)
+    new_order = await order_service.create_order(db, order)
+    customer = await customer_service.get_customer(db, order.customer_id)
     
     # Send notifications in background
     background_tasks.add_task(
@@ -92,11 +94,12 @@ async def list_orders(
     status: Optional[OrderStatus] = None,
     customer_id: Optional[str] = None,
     search: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """List all orders with filters (Admin only)"""
     order_service = OrderService()
-    return await order_service.list_orders(
+    return await order_service.list_orders(db,
         skip=skip,
         limit=limit,
         status=status,
@@ -105,25 +108,27 @@ async def list_orders(
     )
 
 @router.get("/statistics")
-async def get_order_statistics(current_user: dict = Depends(require_admin)):
+async def get_order_statistics(db: AsyncSession = Depends(get_db),current_user: dict = Depends(require_super_admin)):
     """Get order statistics (Admin only)"""
     order_service = OrderService()
-    return await order_service.get_order_statistics()
+    return await order_service.get_order_statistics(db)
 
 @router.get("/{order_id}", response_model=OrderResponse)
 async def get_order(
     order_id: str,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Get order by ID (Admin only)"""
     order_service = OrderService()
-    return await order_service.get_order(order_id)
+    return await order_service.get_order(db, order_id)
 
 @router.put("/{order_id}", response_model=OrderResponse)
 async def update_order(
     order_id: str,
     order: OrderUpdate,
     background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Update order (Admin only)"""
@@ -131,12 +136,12 @@ async def update_order(
     customer_service = CustomerService()
     
     # Get old order to check if status changed
-    old_order = await order_service.get_order(order_id)
-    updated_order = await order_service.update_order(order_id, order)
+    old_order = await order_service.get_order(db, order_id)
+    updated_order = await order_service.update_order(db, order_id, order)
     
     # If status changed, send notifications
     if order.status and old_order.status != updated_order.status:
-        customer = await customer_service.get_customer(updated_order.customer_id)
+        customer = await customer_service.get_customer(db,updated_order.customer_id)
         background_tasks.add_task(
             send_order_notifications,
             updated_order,
@@ -149,9 +154,10 @@ async def update_order(
 @router.delete("/{order_id}")
 async def delete_order(
     order_id: str,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Delete order (Admin only)"""
     order_service = OrderService()
-    await order_service.delete_order(order_id)
+    await order_service.delete_order(db,order_id)
     return {"message": "Order deleted successfully"}

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import UUID4, BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -8,6 +8,7 @@ class EmployeeBase(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
+    hire_date: Optional[datetime] = None  # FIXED: Added type annotation
     image_url: Optional[str] = None
     salary: Optional[float] = None
     referee: Optional[str] = None
@@ -21,15 +22,15 @@ class EmployeeUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
+    hire_date: Optional[datetime] = None  # FIXED: Made optional for updates
     image_url: Optional[str] = None
     salary: Optional[float] = None
     referee: Optional[str] = None
 
 class EmployeeResponse(EmployeeBase):
-    id: str
+    id: str  # CHANGED: Use int for PostgreSQL auto-increment ID
     created_at: datetime
     updated_at: datetime
     
     class Config:
         from_attributes = True
-

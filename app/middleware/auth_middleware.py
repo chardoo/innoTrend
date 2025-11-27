@@ -1,20 +1,23 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
+from app.config.firebase import get_db
 from app.utils.helpers import decode_token
 from app.services.auth_service import AuthService
 from app.models.user import UserRole
-
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 security = HTTPBearer()
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
 ) -> dict:
     """Get current authenticated user"""
     token = credentials.credentials
     payload = decode_token(token)
     
     if payload is None:
+        print("Token payload is None")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
@@ -30,7 +33,7 @@ async def get_current_user(
         )
     
     auth_service = AuthService()
-    user = await auth_service.get_user_by_id(user_id)
+    user = await auth_service.get_user_by_id(db, user_id)
     
     if user is None:
         raise HTTPException(
@@ -83,14 +86,15 @@ async def require_super_admin(
 
 # Optional authentication - returns None if no token provided
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+     db: AsyncSession = Depends(get_db)
 ) -> Optional[dict]:
     """Get current user if authenticated, None otherwise"""
     if credentials is None:
         return None
     
     try:
-        return await get_current_user(credentials)
+        return await get_current_user(credentials, db)
     except HTTPException:
         return None
 

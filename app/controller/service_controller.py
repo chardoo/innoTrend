@@ -3,17 +3,19 @@ from typing import List, Optional
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceResponse
 from app.services.service_service import ServiceService
 from app.middleware.auth_middleware import require_admin, get_optional_user
-
+from app.config.firebase import get_db
+from sqlalchemy.ext.asyncio import  AsyncSession
 router = APIRouter(prefix="/api/services", tags=["Services"])
 
 @router.post("", response_model=ServiceResponse, status_code=status.HTTP_201_CREATED)
 async def create_service(
     service: ServiceCreate,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Create a new service (Admin only)"""
     service_service = ServiceService()
-    return await service_service.create_service(service)
+    return await service_service.create_service(db,service)
 
 @router.get("", response_model=List[ServiceResponse])
 async def list_services(
@@ -21,6 +23,7 @@ async def list_services(
     limit: int = 100,
     active_only: bool = True,
     search: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_optional_user)
 ):
     """List all services (Public endpoint)"""
@@ -29,6 +32,7 @@ async def list_services(
     if not current_user or current_user.get("role") not in ["admin", "manager"]:
         active_only = True
     return await service_service.list_services(
+        db,
         skip=skip,
         limit=limit,
         active_only=active_only,
@@ -38,28 +42,31 @@ async def list_services(
 @router.get("/{service_id}", response_model=ServiceResponse)
 async def get_service(
     service_id: str,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_optional_user)
 ):
     """Get service by ID (Public endpoint)"""
     service_service = ServiceService()
-    return await service_service.get_service(service_id)
+    return await service_service.get_service(db,service_id)
 
 @router.put("/{service_id}", response_model=ServiceResponse)
 async def update_service(
     service_id: str,
     service: ServiceUpdate,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Update service (Admin only)"""
     service_service = ServiceService()
-    return await service_service.update_service(service_id, service)
+    return await service_service.update_service(db,service_id, service)
 
 @router.delete("/{service_id}")
 async def delete_service(
     service_id: str,
+    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
     """Delete service (Admin only)"""
     service_service = ServiceService()
-    await service_service.delete_service(service_id)
+    await service_service.delete_service(db,service_id)
     return {"message": "Service deleted successfully"}
