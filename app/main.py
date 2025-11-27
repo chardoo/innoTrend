@@ -15,11 +15,13 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(title=settings.APP_NAME)
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOW_ORIGINS,
-    allow_credentials=False,
-    allow_methods=["*"],
+CORSMiddleware,
+    allow_origins=settings.ALLOW_ORIGINS if settings.ALLOW_ORIGINS != ["*"] else ["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,  
 )
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
