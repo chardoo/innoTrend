@@ -22,7 +22,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
         "http://127.0.0.1:8000",
         "http://localhost",
-        "https://*",
+        "https://innotrend.netlify.app"
     ]
     # Map your existing env names too (works with or without the APP_ prefix)
     FIREBASE_CREDENTIALS_B64: Optional[str] = Field(

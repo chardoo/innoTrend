@@ -3,6 +3,7 @@ from app.config.config import settings
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware import Middleware
 from app.config.config import settings
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -10,16 +11,24 @@ from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware import Middleware
 
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=['*'],
+        allow_methods=['*'],
+        allow_headers=['*']
+    )
+]
 
 
-app = FastAPI(title=settings.APP_NAME)
-
+app = FastAPI(title=settings.APP_NAME,middleware=middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOW_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
