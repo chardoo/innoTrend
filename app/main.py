@@ -14,13 +14,12 @@ from starlette.middleware import Middleware
 
 app = FastAPI(title=settings.APP_NAME)
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=settings.ALLOW_ORIGINS,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOW_ORIGINS,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(

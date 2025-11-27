@@ -22,7 +22,7 @@ class EmailService:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
        
     # Login to the Gmail SMTP server
-        user_email = "innotrend23@gmail.com"  # Replace with your email
+        user_email = "healthtolbert@gmail.com"  # Replace with your email
         app_password = "zikj epah lvuf qwhx"  # Replace with your Gmail App Password
         server.login(user_email, app_password)
 
