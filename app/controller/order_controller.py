@@ -1,5 +1,8 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from typing import List, Optional
+
+from fastapi.params import Query
 from app.schemas.order import OrderCreate, OrderUpdate, OrderResponse
 from app.services.order_service import OrderService
 from app.services.customer_service import CustomerService
@@ -108,10 +111,50 @@ async def list_orders(
     )
 
 @router.get("/statistics")
-async def get_order_statistics(db: AsyncSession = Depends(get_db),current_user: dict = Depends(require_super_admin)):
-    """Get order statistics (Admin only)"""
+async def get_order_statistics(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(require_super_admin),
+    period: Optional[str] = Query(None, enum=["today", "week", "month", "year", "all"]),
+    year: Optional[int] = Query(None, ge=2000, le=2100),
+    month: Optional[int] = Query(None, ge=1, le=12),
+    start_date: Optional[str] = Query(None, description="Format: YYYY-MM-DD"),
+    end_date: Optional[str] = Query(None, description="Format: YYYY-MM-DD"),
+    include_monthly_breakdown: bool = Query(False, description="Include monthly breakdown"),
+    include_comparison: bool = Query(False, description="Compare with previous period")
+):
+    """
+    Get comprehensive order statistics (Admin only)
+    
+    Query Parameters:
+    - period: Predefined period (today/week/month/year/all)
+    - year: Specific year
+    - month: Specific month (1-12, requires year)
+    - start_date: Custom start date (YYYY-MM-DD)
+    - end_date: Custom end date (YYYY-MM-DD)
+    - include_monthly_breakdown: Get monthly breakdown for the period
+    - include_comparison: Compare with previous period
+    """
     order_service = OrderService()
-    return await order_service.get_order_statistics(db)
+    
+    # Parse custom dates if provided
+    parsed_start_date = None
+    parsed_end_date = None
+    
+    if start_date:
+        parsed_start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    if end_date:
+        parsed_end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    
+    return await order_service.get_order_statistics(
+        db=db,
+        period=period,
+        year=year,
+        month=month,
+        start_date=parsed_start_date,
+        end_date=parsed_end_date,
+        include_monthly_breakdown=include_monthly_breakdown,
+        include_comparison=include_comparison
+    )
 
 @router.get("/{order_id}", response_model=OrderResponse)
 async def get_order(

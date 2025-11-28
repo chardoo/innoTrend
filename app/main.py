@@ -78,7 +78,7 @@ async def shutdown_event():
     print("Shutting down InnoTrend API...")
 
 from app.config.firebase import init_db
-from app.controller import auth_controller, contact_controller, order_controller,  employee_controller, customer_controller,service_controller
+from app.controller import auth_controller, contact_controller, order_controller,  employee_controller, customer_controller,service_controller,new_controller, expenses_controller
 
 app.include_router(auth_controller.router)
 app.include_router(contact_controller.router)
@@ -86,3 +86,6 @@ app.include_router(order_controller.router)
 app.include_router(employee_controller.router)
 app.include_router(customer_controller.router)
 app.include_router(service_controller.router)
+app.include_router(new_controller.news_router)
+app.include_router(expenses_controller.expense_router)
+

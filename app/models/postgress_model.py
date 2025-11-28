@@ -107,3 +107,36 @@ class Contact(Base):
     is_read = Column(Boolean, default=False)
     message = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+class ExpenseType(str, enum.Enum):
+    MATERIAL = "material"
+    LABOR = "labor"
+    SHIPPING = "shipping"
+    UTILITIES = "utilities"
+    MARKETING = "marketing"
+    MAINTENANCE = "maintenance"
+    OTHER = "other"
+
+class Expense(Base):
+    __tablename__ = "expenses"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    date = Column(DateTime)
+    amount = Column(Float, nullable=False)
+    type = Column(Enum(ExpenseType), nullable=False)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class News(Base):
+    __tablename__ = "news"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
+    from_date = Column(DateTime, nullable=False)
+    to_date = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
