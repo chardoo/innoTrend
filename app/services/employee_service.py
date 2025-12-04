@@ -4,11 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.postgress_model import Employee
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
+from app.services.expenses import to_naive_utc
 
 class EmployeeService:
     @staticmethod
     async def create_employee(db: AsyncSession, employee: EmployeeCreate) -> EmployeeResponse:
         """Create a new employee"""
+        employee.hire_date = to_naive_utc(employee.hire_date)
         db_employee = Employee(**employee.model_dump())
         db.add(db_employee)
         await db.commit()
