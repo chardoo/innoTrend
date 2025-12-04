@@ -66,6 +66,7 @@ async def require_admin(
     current_user: dict = Depends(get_current_user)
 ) -> dict:
     """Require admin or manager role"""
+    print("Current user role:", current_user["role"])
     if current_user["role"] not in [UserRole.ADMIN, UserRole.MANAGER]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

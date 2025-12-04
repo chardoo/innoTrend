@@ -88,6 +88,7 @@ class Employee(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone = Column(String(50))
     job_title = Column(String(255), nullable=False)  # ✅ Fixed - removed comma
+    referee = Column(String(255))
     bio = Column(Text)
     department = Column(String(255))
     hire_date = Column(DateTime)
