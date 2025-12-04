@@ -8,11 +8,12 @@ import logging
 # Create async engine
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.APP_DEBUG,
+
     future=True,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+    pool_size=20,
+    max_overflow=10,
+    echo=False
 )
 
 # Create async session factory

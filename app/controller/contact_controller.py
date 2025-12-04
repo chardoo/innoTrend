@@ -31,6 +31,7 @@ async def submit_contact_form(
 ):
     """Submit contact form (Public endpoint)"""
     contact_service = ContactService()
+   
     new_contact = await contact_service.create_contact(db, contact)
     
     # Notify admin in background

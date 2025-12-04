@@ -10,11 +10,13 @@ class ContactService:
     @staticmethod
     async def create_contact(db: AsyncSession, contact: ContactCreate) -> ContactResponse:
         """Create a new contact submission"""
+        print('hey am here 3')
         db_contact = Contact(**contact.model_dump(), is_read=False)
+        print('hey am here 4')
         db.add(db_contact)
         await db.commit()
         await db.refresh(db_contact)
-        
+        print('hey am here 5')
         # print("Created contact:", db_contact.)
         return ContactResponse.model_validate(db_contact)
     
