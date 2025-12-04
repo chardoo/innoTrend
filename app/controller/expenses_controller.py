@@ -20,7 +20,7 @@ async def create_expense(
 
 @expense_router.get("/{expense_id}", response_model=ExpenseResponse)
 async def get_expense(
-    expense_id: int,
+    expense_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
@@ -47,7 +47,7 @@ async def get_expenses(
 
 @expense_router.put("/{expense_id}", response_model=ExpenseResponse)
 async def update_expense(
-    expense_id: int,
+    expense_id: str,
     expense_data: ExpenseUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
@@ -57,7 +57,7 @@ async def update_expense(
 
 @expense_router.delete("/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_expense(
-    expense_id: int,
+    expense_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):

@@ -21,7 +21,7 @@ async def create_news(
 
 @news_router.get("/{news_id}", response_model=NewsResponse)
 async def get_news(
-    news_id: int,
+    news_id: str,
     db: AsyncSession = Depends(get_db)
 ):
     """Get news by ID (Public)"""
@@ -40,7 +40,7 @@ async def get_all_news(
 
 @news_router.put("/{news_id}", response_model=NewsResponse)
 async def update_news(
-    news_id: int,
+    news_id: str,
     news_data: NewsUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
@@ -50,7 +50,7 @@ async def update_news(
 
 @news_router.delete("/{news_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_news(
-    news_id: int,
+    news_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
@@ -59,7 +59,7 @@ async def delete_news(
 
 @news_router.patch("/{news_id}/toggle", response_model=NewsResponse)
 async def toggle_news_active(
-    news_id: int,
+    news_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
