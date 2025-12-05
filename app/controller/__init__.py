@@ -6,6 +6,7 @@ from .employee_controller import router as employee_router
 from .contact_controller import router as contact_router
 from .expenses_controller import expense_router as expense_router
 from .new_controller import news_router as news_router
+from .student_controller import student_router as student_router
 
 __all__ = [
     "auth_router",
@@ -15,5 +16,6 @@ __all__ = [
     "employee_router",
     "contact_router",
     "expense_router",
-    "news_router"
+    "news_router",
+    "student_router"
 ]

@@ -101,13 +101,15 @@ async def send_message_to_customers(
     }
     customers = []
     contacts =  []
-    for customer_id in message_data.customers_ids:
+    if message_data.customers_ids.__len__() > 0:
+     for customer_id in message_data.customers_ids:
         try:
             customer = await customer_service.get_customer(db, customer_id)
             customers.append(customer)
         except:
             continue
-    for contact_id in message_data.contact_ids:
+    if message_data.contact_ids.__len__() > 0:
+     for contact_id in message_data.contact_ids:
         try:
             contact = await contact_service.get_contact(db, contact_id)
             contacts.append(contact)
@@ -117,13 +119,15 @@ async def send_message_to_customers(
     if message_data.send_via_email:
         email_list = [c.email for c in customers ]
         cont =[b.email for b in contacts]
-        email_list.append(cont[0])
-        email_results = await email_service.send_bulk_email(
+        if cont.__len__()>0:
+          email_list.append(cont[0])
+        if email_list.__len__() > 0:
+         email_results = await email_service.send_bulk_email(
             email_list,
             message_data.subject,
             message_data.message
-        )
-        results["email"] = email_results
+         )
+         results["email"] = email_results
     
     if message_data.send_via_sms:
               

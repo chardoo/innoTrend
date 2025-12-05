@@ -141,3 +141,84 @@ class News(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+class StudentStatus(str, enum.Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    ENROLLED = "enrolled"
+
+class Student(Base):
+    __tablename__ = "students"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    # Account Information
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    
+    # Personal Information
+    full_name = Column(String(255), nullable=False)
+    date_of_birth = Column(DateTime)
+    gender = Column(String(20))
+    phone = Column(String(50))
+    address = Column(Text)
+    city = Column(String(100))
+    postal_code = Column(String(20))
+
+    
+    # Emergency Contact
+    emergency_contact_name = Column(String(255))
+    emergency_contact_phone = Column(String(50))
+    emergency_contact_relationship = Column(String(100))
+    
+    # Academic Information
+    previous_school = Column(String(255))
+    grade_level = Column(String(50))
+    intended_major = Column(String(255))
+    
+    # Documents
+    profile_image_url = Column(String(255))
+    document_urls = Column(Text)  # JSON string of document URLs
+    
+    # Admission Status
+    status = Column(Enum(StudentStatus), default=StudentStatus.PENDING)
+    admission_period = Column(Text)
+    rejection_reason = Column(Text)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    
+class PaymentType(str, enum.Enum):
+    ADMISSION_FEE = "admission_fee"
+    TUITION_MONTHLY = "tuition_monthly"
+    TUITION_YEARLY = "tuition_yearly"
+    OTHER = "other"
+
+class PaymentStatus(str, enum.Enum):
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+class Payment(Base):
+    __tablename__ = "payments"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    student_id = Column(String, ForeignKey("students.id"), nullable=False)
+    payment_reference = Column(String(255), unique=True, index=True, nullable=False)
+    amount = Column(Float, nullable=False)
+    payment_type = Column(Enum(PaymentType), nullable=False)
+    status = Column(Enum(PaymentStatus), default=PaymentStatus.PENDING)
+    description = Column(Text)
+    verified_at = Column(DateTime)
+    expires_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship
+    student = relationship("Student", backref="payments")
