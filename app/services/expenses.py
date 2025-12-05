@@ -22,12 +22,12 @@ class ExpenseService:
     @staticmethod
     async def create_expense(db: AsyncSession, expense_data: ExpenseCreate) -> Expense:
         """Create a new expense"""
-        print("Creating expense with data:", expense_data)
+      
         expense_data.date = to_naive_utc(expense_data.date)
         expense = Expense(**expense_data.model_dump())
-        print("Expense object created:", expense)
+     
         db.add(expense)
-        print("Expense added to session")
+      
         await db.commit()
         await db.refresh(expense)
         return expense
@@ -79,7 +79,8 @@ class ExpenseService:
     ) -> Expense:
         """Update an expense"""
         expense = await ExpenseService.get_expense(db, expense_id)
-        
+        expense_data.date = to_naive_utc(expense_data.date)
+       
         update_data = expense_data.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(expense, field, value)
