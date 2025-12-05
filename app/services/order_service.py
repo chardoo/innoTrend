@@ -109,6 +109,7 @@ class OrderService:
         order_update: OrderUpdate
     ) -> OrderResponse:
         """Update order details"""
+        
         result = await db.execute(
             select(Order)
             .options(selectinload(Order.customer), selectinload(Order.service))

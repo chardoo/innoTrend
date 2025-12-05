@@ -64,6 +64,7 @@ class EmployeeService:
         employee_update: EmployeeUpdate
     ) -> EmployeeResponse:
         """Update employee"""
+        employee_update.hire_date = to_naive_utc(employee_update.hire_date)
         result = await db.execute(
             select(Employee).where(Employee.id == employee_id)
         )
