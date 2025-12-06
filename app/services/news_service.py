@@ -72,16 +72,13 @@ class NewsService:
         news_data: NewsUpdate
     ) -> News:
         """Update a news item"""
+        news_data.from_date = to_naive_utc(news_data.from_date)
+        news_data.to_date = to_naive_utc(news_data.to_date)
         news = await NewsService.get_news(db, news_id)
         
         update_data = news_data.model_dump(exclude_unset=True)
         
-        # Validate date range if both dates are being updated
-        if 'from_date' in update_data and update_data['from_date']:
-           update_data['from_date'] = to_naive_utc(update_data['from_date'])
-        if 'to_date' in update_data and update_data['to_date']:
-           update_data['to_date'] = to_naive_utc(update_data['to_date'])
-    
+
     # Validate date range if both dates are being updated
         if 'from_date' in update_data or 'to_date' in update_data:
           from_date = update_data.get('from_date', news.from_date)
