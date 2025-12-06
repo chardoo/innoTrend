@@ -54,7 +54,7 @@ class EmailService:
         finally:
         # Close the connection
           server.quit()
-          return False
+          return True
 
     
     async def send_bulk_email(self, recipients: List[str], subject: str, content: str, html_content: str = None) -> dict:
@@ -71,7 +71,7 @@ class EmailService:
                 results["success"].append(email)
             else:
                 results["failed"].append(email)
-        
+     
         return results
     
     async def send_order_confirmation(self, to_email: str, order_number: str, customer_name: str, product_service: str, amount: float) -> bool:

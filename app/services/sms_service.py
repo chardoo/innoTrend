@@ -44,11 +44,12 @@ class SMSService:
         # print('bulk sms function called')
         for number in phone_numbers:
             success = await self.send_sms(number, message)
+           
             if success is True:
                 results["success"].append(number)
             else:
                 results["failed"].append(number)
-        
+     
         return results
     
     async def send_order_notification(self, phone_number: str, order_number: str, status: str) -> bool:
